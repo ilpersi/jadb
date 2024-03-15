@@ -2,6 +2,8 @@ package se.vidstige.jadb;
 
 import se.vidstige.jadb.managers.Bash;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -217,6 +219,11 @@ public class JadbDevice {
         try (FileOutputStream fileStream = new FileOutputStream(local)) {
             pull(remote, fileStream);
         }
+    }
+
+    public BufferedImage screencap() throws IOException, JadbException {
+        InputStream stdout = this.execute("screencap", "-p");
+        return ImageIO.read(stdout);
     }
 
     private void send(Transport transport, String command) throws IOException, JadbException {
