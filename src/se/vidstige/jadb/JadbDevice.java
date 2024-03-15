@@ -81,6 +81,13 @@ public class JadbDevice {
         }
     }
 
+    public InputStream executeOut(String command, String... args) throws IOException, JadbException {
+        Transport transport = getTransport();
+        StringBuilder shellLine = buildCmdLine(command, args);
+        send(transport, "exec-out:" + shellLine.toString());
+        return new AdbFilterInputStream(new BufferedInputStream(transport.getInputStream()));
+    }
+
     /** <p>Execute a shell command.</p>
      *
      * <p>For Lollipop and later see: {@link #execute(String, String...)}</p>
