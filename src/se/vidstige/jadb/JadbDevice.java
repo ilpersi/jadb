@@ -245,10 +245,9 @@ public class JadbDevice {
 
             String installedStr = result.toString();
             installedStr = installedStr.replaceAll("package:", "");
-            String[] installedArr = installedStr.split("\\n");
 
             HashSet<String> installed = new HashSet<>();
-            Collections.addAll(installed, installedArr);
+            Collections.addAll(installed, installedStr.split("\n"));
 
             return installed;
         }
