@@ -6,8 +6,11 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class JadbDevice {
     @SuppressWarnings("squid:S00115")
@@ -232,6 +235,22 @@ public class JadbDevice {
             InputStream is = this.executeShell(cmd);
             Stream.copy(is, baos);
             return baos.toString();
+        }
+    }
+
+    public HashSet<String> listInstalledPackages() throws IOException, JadbException {
+        try ( ByteArrayOutputStream result = new ByteArrayOutputStream()){
+            InputStream stdout = this.executeShell("pm list packages 2>/dev/null");
+            Stream.copy(stdout, result);
+
+            String installedStr = result.toString();
+            installedStr = installedStr.replaceAll("package:", "");
+            String[] installedArr = installedStr.split("\\n");
+
+            HashSet<String> installed = new HashSet<>();
+            Collections.addAll(installed, installedArr);
+
+            return installed;
         }
     }
 
