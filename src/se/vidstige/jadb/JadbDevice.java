@@ -226,6 +226,15 @@ public class JadbDevice {
         return ImageIO.read(stdout);
     }
 
+    public String runPackage(String packageName) throws IOException, JadbException {
+        String cmd = String.format("monkey -p %s 1", packageName);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            InputStream is = this.executeShell(cmd);
+            Stream.copy(is, baos);
+            return baos.toString();
+        }
+    }
+
     private void send(Transport transport, String command) throws IOException, JadbException {
         transport.send(command);
         transport.verifyResponse();
