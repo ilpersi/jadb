@@ -5,12 +5,8 @@ import se.vidstige.jadb.managers.Bash;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class JadbDevice {
     @SuppressWarnings("squid:S00115")
@@ -248,6 +244,26 @@ public class JadbDevice {
 
             HashSet<String> installed = new HashSet<>();
             Collections.addAll(installed, installedStr.split("\n"));
+
+            return installed;
+        }
+    }
+
+    public HashSet<String> listRunningPackages() throws IOException, JadbException {
+        try ( ByteArrayOutputStream result = new ByteArrayOutputStream()){
+            InputStream stdout = this.executeShell("ps | grep u0_");
+            Stream.copy(stdout, result);
+
+            String installedStr = result.toString();
+            installedStr = installedStr.replaceAll("package:", "");
+
+            HashSet<String> installed = new HashSet<>();
+
+            Arrays.stream(installedStr.split("\\n")).forEach(line -> {
+                String[] cols = line.split("\\s+");
+                String pkgName = cols[cols.length - 1];
+                installed.add(pkgName);
+            });
 
             return installed;
         }
