@@ -269,6 +269,41 @@ public class JadbDevice {
         }
     }
 
+    public void tap(int x, int y) throws IOException, JadbException {
+        String cmd = String.format("input tap %s %s", x, y);
+        InputStream is = this.executeShell(cmd);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Stream.copy(is, baos);
+        }
+    }
+
+    public void swipe(int startX, int startY, int endX, int endY, int duration) throws IOException, JadbException {
+        String cmd = String.format("input swipe %s %s %s %s %s", startX, startY, endX, endY, duration);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            InputStream is = this.executeShell(cmd);
+            Stream.copy(is, baos);
+        }
+    }
+
+    public Boolean isInstalled(String pkgName) throws IOException, JadbException {
+        String cmd = String.format("'pm path %s", pkgName);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            InputStream is = this.executeShell(cmd);
+            Stream.copy(is, baos);
+            return baos.toString().contains("package:");
+        }
+    }
+
+    public Boolean istForegroundApp(String pkgName) throws IOException, JadbException {
+        String cmd = "dumpsys activity recents | grep 'Recent #0' | cut -d= -f2 | sed 's| .*||' | cut -d '/' -f1";
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            InputStream is = this.executeShell(cmd);
+            Stream.copy(is, baos);
+            String result = baos.toString();
+            return result.contains(pkgName);
+        }
+    }
+
     private void send(Transport transport, String command) throws IOException, JadbException {
         transport.send(command);
         transport.verifyResponse();
